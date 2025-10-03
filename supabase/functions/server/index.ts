@@ -34,7 +34,7 @@ app.use(
 );
 
 // Health check endpoint
-app.get("/make-server-12535d4a/health", (c: any) => {
+app.get("/health", (c: any) => {
   return c.json({ 
     status: "ok",
     timestamp: new Date().toISOString(),
@@ -43,7 +43,7 @@ app.get("/make-server-12535d4a/health", (c: any) => {
 });
 
 // Database initialization endpoint
-app.post("/make-server-12535d4a/init-database", async (c: any) => {
+app.post("/init-database", async (c: any) => {
   try {
     console.log('🔄 Initializing NDKC RFID database...');
     
@@ -361,7 +361,7 @@ app.post("/make-server-12535d4a/init-database", async (c: any) => {
 });
 
 // RFID tap-in endpoint
-app.post("/make-server-12535d4a/rfid/tap-in", async (c) => {
+app.post("/rfid/tap-in", async (c) => {
   try {
     const { rfidId, classroomId } = await c.req.json();
     
@@ -448,7 +448,7 @@ app.post("/make-server-12535d4a/rfid/tap-in", async (c) => {
 });
 
 // RFID tap-out endpoint
-app.post("/make-server-12535d4a/rfid/tap-out", async (c) => {
+app.post("/rfid/tap-out", async (c) => {
   try {
     const { rfidId } = await c.req.json();
     
@@ -517,7 +517,7 @@ app.post("/make-server-12535d4a/rfid/tap-out", async (c) => {
 });
 
 // Admin: Create teacher user (uses service role)
-app.post("/make-server-12535d4a/admin/create-teacher", async (c: any) => {
+app.post("/admin/create-teacher", async (c: any) => {
   try {
     const { email, password, name, department, rfidId, isActive } = await c.req.json();
 

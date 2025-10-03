@@ -23,15 +23,14 @@ export const tapInRFID = async (rfidId: string, classroomId: string) => {
       throw new Error('Supabase not configured');
     }
 
-    const functionName = 'server';
-    const servicePrefix = `make-server-12535d4a`;
-
+  // Our deployed function's slug is the service prefix. Call the slug directly
+  // so the URL becomes /functions/v1/<slug>/rfid/tap-in
+  const servicePrefix = `make-server-12535d4a`;
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 8000); // 8 second timeout
 
-    // Note: our Edge Function is deployed with the name `server` and hosts internal routes
-    // under /make-server-12535d4a/... so the full path is /functions/v1/server/make-server-12535d4a/...
-    const response = await fetch(`https://${projectId}.supabase.co/functions/v1/${functionName}/${servicePrefix}/rfid/tap-in`, {
+  // Call the function using its slug (servicePrefix)
+  const response = await fetch(`https://${projectId}.supabase.co/functions/v1/${servicePrefix}/rfid/tap-in`, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${config.supabase.anonKey}`,
@@ -78,10 +77,10 @@ export const createTeacherServer = async (payload: {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), 10000);
 
-  const functionName = 'server';
-  const servicePrefix = `make-server-12535d4a`;
+  // Call the function using its slug (servicePrefix)
+  const functionSlug = `make-server-12535d4a`;
 
-  const response = await fetch(`https://${projectId}.supabase.co/functions/v1/${functionName}/${servicePrefix}/admin/create-teacher`, {
+  const response = await fetch(`https://${projectId}.supabase.co/functions/v1/${functionSlug}/admin/create-teacher`, {
     method: 'POST',
     headers: {
       'Authorization': `Bearer ${config.supabase.anonKey}`,
@@ -111,10 +110,9 @@ export const tapOutRFID = async (rfidId: string) => {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 8000); // 8 second timeout
 
-    const functionName = 'server';
-    const servicePrefix = `make-server-12535d4a`;
+  const servicePrefix = `make-server-12535d4a`;
 
-    const response = await fetch(`https://${projectId}.supabase.co/functions/v1/${functionName}/${servicePrefix}/rfid/tap-out`, {
+  const response = await fetch(`https://${projectId}.supabase.co/functions/v1/${servicePrefix}/rfid/tap-out`, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${config.supabase.anonKey}`,
@@ -156,10 +154,9 @@ export const initializeDatabase = async () => {
     const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
     
     // Call our server endpoint to initialize the database
-    const functionName = 'server';
-    const servicePrefix = `make-server-12535d4a`;
+  const servicePrefix = `make-server-12535d4a`;
 
-    const response = await fetch(`https://${config.supabase.url.split('https://')[1].split('.supabase.co')[0]}.supabase.co/functions/v1/${functionName}/${servicePrefix}/init-database`, {
+  const response = await fetch(`https://${config.supabase.url.split('https://')[1].split('.supabase.co')[0]}.supabase.co/functions/v1/${servicePrefix}/init-database`, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${config.supabase.anonKey}`,

@@ -365,6 +365,22 @@ function AdminDashboardContent(): React.ReactElement {
   };
 
   // Teacher Management Component
+  /**
+   * TeachersView
+   *
+   * This view renders the "Add Teacher" dialog and the teacher management UI.
+   * Behavior summary:
+   * - All form inputs are controlled (value + onChange) to avoid unmounts/lost typing.
+   * - Fields validated before submission: first name, last name, NDKC email, RFID ID.
+   * - Password is optional; when omitted the client generates a temporary password.
+   * - On submit the client calls the Edge Function via `createTeacherServer` which:
+   *   1) creates a Supabase Auth user using the service role key (email/password),
+   *   2) inserts the teacher profile into the `users` table (id = auth user id)
+   *   3) returns success or error details.
+   * - The form displays success and error toasts; on success the temporary
+   *   password is shown in a small banner and copied to the clipboard (if allowed).
+   * - The dialog remains open on server-side errors so admins can correct input.
+   */
   const TeachersView = ({ setTempTeacherPassword, setShowTempTeacherPassword }: { setTempTeacherPassword: React.Dispatch<React.SetStateAction<string | null>>; setShowTempTeacherPassword: React.Dispatch<React.SetStateAction<boolean>> }) => {
     React.useEffect(() => {
       console.log('[AdminDashboard] TeachersView mounted');
