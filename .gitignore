@@ -1,0 +1,14 @@
+node_modules/
+/.env
+.env.local
+.env.*.local
+/.venv
+/dist
+/build
+/package-lock.json
+.DS_Store
+.idea/
+/.vscode/
+/.npmrc
+/.env
+/.supabase
