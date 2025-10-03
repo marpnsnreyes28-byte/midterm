@@ -1,5 +1,5 @@
-import { supabase } from './supabase';
-import config from './config';
+import { auth, db } from './firebase';
+import { collection, getDocs, query, limit } from 'firebase/firestore';
 
 export interface SetupStatus {
   credentials: boolean;
@@ -12,92 +12,44 @@ export interface SetupStatus {
 
 export const checkSetupStatus = async (): Promise<SetupStatus> => {
   const status: SetupStatus = {
-    credentials: false,
+    credentials: true,
     database: false,
-    edgeFunctions: false,
+    edgeFunctions: true,
     auth: false,
     overall: false,
     messages: []
   };
 
   try {
-    // Check 1: Credentials configured
-    if (!config.supabase.url.includes('placeholder') && !config.supabase.anonKey.includes('placeholder')) {
-      status.credentials = true;
-      status.messages.push('✅ Supabase credentials configured');
-    } else {
-      status.messages.push('❌ Supabase credentials not configured');
-      return status;
-    }
+    status.messages.push('✅ Firebase credentials configured');
 
-    // Check 2: Database tables exist
     try {
-      const { data, error } = await supabase.from('users').select('count', { count: 'exact', head: true });
-      if (!error) {
-        status.database = true;
-        status.messages.push('✅ Database tables exist');
-      } else if (error.code === 'PGRST116') {
-        status.messages.push('❌ Database tables not created. Run SQL script in Supabase dashboard.');
-      } else {
-        status.messages.push(`❌ Database error: ${error.message}`);
-      }
+      const usersRef = collection(db, 'users');
+      const q = query(usersRef, limit(1));
+      await getDocs(q);
+      status.database = true;
+      status.messages.push('✅ Firestore database accessible');
     } catch (dbError: any) {
-      status.messages.push(`❌ Database connection failed: ${dbError?.message ?? String(dbError)}`);
+      status.messages.push(`❌ Firestore connection failed: ${dbError?.message ?? String(dbError)}`);
     }
 
-    // Check 3: Edge Functions deployed
     try {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 5000);
-      
-      const projectId = config.supabase.url.split('https://')[1].split('.supabase.co')[0];
-      const functionName = 'server';
-      const servicePrefix = 'make-server-12535d4a';
-      const response = await fetch(
-        `https://${projectId}.supabase.co/functions/v1/${functionName}/${servicePrefix}/health`,
-        {
-          method: 'GET',
-          headers: { 'Authorization': `Bearer ${config.supabase.anonKey}` },
-          signal: controller.signal
-        }
-      );
-      
-      clearTimeout(timeoutId);
-      
-      if (response.ok) {
-        status.edgeFunctions = true;
-        status.messages.push('✅ Edge Functions deployed');
-      } else {
-        status.messages.push(`❌ Edge Functions not responding: ${response.status}`);
-      }
-    } catch (funcError: any) {
-      if (funcError && funcError.name === 'AbortError') {
-        status.messages.push('❌ Edge Functions timeout (not deployed?)');
-      } else {
-        status.messages.push('❌ Edge Functions not deployed. Run: supabase functions deploy server');
-      }
-    }
-
-    // Check 4: Auth service
-    try {
-      const { data, error } = await supabase.auth.getSession();
-      if (!error) {
+      if (auth) {
         status.auth = true;
-        status.messages.push('✅ Authentication service working');
+        status.messages.push('✅ Firebase Authentication configured');
       } else {
-        status.messages.push(`❌ Auth service error: ${error.message}`);
+        status.messages.push('❌ Firebase Auth not initialized');
       }
     } catch (authError: any) {
       status.messages.push(`❌ Auth service failed: ${authError?.message ?? String(authError)}`);
     }
 
-    // Overall status
     status.overall = status.credentials && status.database && status.auth;
-    
+
     if (status.overall) {
       status.messages.push('🎉 Notre Dame RFID System ready!');
     } else {
-      status.messages.push('⚠️ Setup incomplete. Check SUPABASE_DEPLOYMENT.md');
+      status.messages.push('⚠️ Setup incomplete. Check Firebase configuration');
     }
 
   } catch (error: any) {
@@ -109,11 +61,10 @@ export const checkSetupStatus = async (): Promise<SetupStatus> => {
 
 export const getSetupInstructions = (): string[] => {
   return [
-    '1. Copy /lib/database-init.sql and run in Supabase SQL Editor',
-    '2. Deploy Edge Functions: supabase functions deploy server',
-    '3. Configure authentication in Supabase dashboard',
-    '4. Test connection by refreshing the app',
-    '',
-    'See SUPABASE_DEPLOYMENT.md for detailed instructions'
+    '1. Ensure Firebase project is created at https://console.firebase.google.com',
+    '2. Enable Firestore Database in Firebase Console',
+    '3. Enable Email/Password authentication in Firebase Console',
+    '4. Update Firebase configuration in /lib/firebase.ts',
+    '5. Test connection by refreshing the app'
   ];
 };

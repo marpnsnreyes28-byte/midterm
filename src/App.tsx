@@ -3,7 +3,6 @@
 import React, { useState, useEffect, lazy, Suspense } from 'react';
 import { ThemeProvider } from './components/ThemeProvider';
 import { AuthProvider, useAuth } from './components/AuthProvider';
-import { SetupGuard } from './components/SetupGuard';
 import { Header } from './components/Header';
 import { LoginForm } from './components/LoginForm';
 import { Dashboard } from './components/Dashboard';
@@ -140,7 +139,6 @@ const AppContent = React.memo(() => {
       
   {/* Content (separate layer from background animation) */}
   <div className="relative z-10 content-layer">
-        <SetupGuard>
           {user ? (
             // Dashboard has its own layout structure
             <Dashboard />
@@ -161,7 +159,7 @@ const AppContent = React.memo(() => {
                         Please sign in to access the system
                       </p>
                     </div>
-                    
+
                     {/* Demo credentials info */}
                     <div className="mt-6 p-4 bg-card/80 backdrop-blur-sm border border-border rounded-lg text-sm text-muted-foreground shadow-sm">
                       <p className="font-medium mb-2 text-foreground">Setup Instructions:</p>
@@ -176,7 +174,7 @@ const AppContent = React.memo(() => {
                           Teachers must use @ndkc.edu.ph emails
                         </p>
                         <p className="text-amber-600 dark:text-amber-400 mt-2">
-                          ⚠️ Database setup required for full functionality
+                          ⚠️ Firebase setup required for full functionality
                         </p>
                       </div>
                     </div>
@@ -186,7 +184,6 @@ const AppContent = React.memo(() => {
               </main>
             </>
           )}
-        </SetupGuard>
       </div>
       
       {/* Toast Notifications */}
