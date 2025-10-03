@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { useAuth } from './AuthProvider';
-import { AlertTriangle, CheckCircle, Wifi, X } from 'lucide-react';
+import { TriangleAlert as AlertTriangle, CircleCheck as CheckCircle, Wifi, X } from 'lucide-react';
 import { Alert, AlertDescription } from './ui/alert';
 import { Button } from './ui/button';
 
